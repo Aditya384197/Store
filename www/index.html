@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kirana Smart Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAF7F1; --card:#FFFFFF; --ink:#1B2A22; --sub:#6B7A70;
+  --green:#1F6F4A; --green-d:#154E33; --marigold:#E39A2D; --red:#C0392B;
+  --line:#E7E0D2; --radius:14px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14201A; --card:#1C2A22; --ink:#EFEAE0; --sub:#9BAA9F; --line:#2A3B31;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14201A; --card:#1C2A22; --ink:#EFEAE0; --sub:#9BAA9F; --line:#2A3B31;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;font-weight:400}
+h1,h2,h3{font-weight:800;margin:0 0 4px}
+button{font-family:inherit;cursor:pointer}
+.app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+header.top{padding:16px 18px 10px;display:flex;justify-content:space-between;align-items:center}
+header.top .brand{font-size:19px;font-weight:800;color:var(--green-d)}
+header.top .brand small{display:block;font-size:11px;font-weight:600;color:var(--sub)}
+.iconbtn{background:none;border:1px solid var(--line);border-radius:10px;width:36px;height:36px;color:var(--ink);font-size:16px}
+main{flex:1;padding:4px 14px 90px;overflow-x:hidden}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.stat .lbl{font-size:12px;color:var(--sub);font-weight:600}
+.stat .val{font-size:20px;font-weight:800;margin-top:2px}
+.stat.pos .val{color:var(--green-d)}
+.stat.neg .val{color:var(--red)}
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.qa button{background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:14px 10px;font-weight:700;font-size:14px;text-align:left}
+.qa button span{display:block;font-size:11px;font-weight:500;opacity:.85;margin-top:2px}
+.qa button.alt{background:var(--marigold)}
+.list-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.list-row:last-child{border-bottom:none}
+.list-row .name{font-weight:700;font-size:14px}
+.list-row .meta{font-size:12px;color:var(--sub)}
+.badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+.badge.low{background:#FBEBD6;color:#8A5A0C}
+.badge.out{background:#F7DAD7;color:var(--red)}
+.badge.ok{background:#DCEEE3;color:var(--green-d)}
+nav.tabs{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+nav.tabs button{flex:1;background:none;border:none;color:var(--sub);font-size:10px;font-weight:700;padding:6px 2px;border-radius:10px}
+nav.tabs button .ic{display:block;font-size:18px;margin-bottom:2px}
+nav.tabs button.active{color:var(--green-d);background:#EAF2ED}
+:root[data-theme="dark"] nav.tabs button.active{background:#243A2E}
+.screen{display:none}
+.screen.active{display:block}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:14px;margin-bottom:10px;font-family:inherit}
+label{font-size:12px;font-weight:700;color:var(--sub);display:block;margin-bottom:4px}
+.btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;background:var(--green);color:#fff;font-weight:700;font-size:15px}
+.btn.sec{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:var(--red)}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.searchbar{position:relative;margin-bottom:10px}
+.pill{display:inline-block;padding:6px 12px;border-radius:20px;border:1px solid var(--line);font-size:13px;font-weight:700;margin-right:6px;background:var(--card)}
+.pill.on{background:var(--green);color:#fff;border-color:var(--green)}
+.cartline{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.cartline .qtybtns{display:flex;align-items:center;gap:8px}
+.cartline .qtybtns button{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.totalbar{position:fixed;bottom:60px;left:0;right:0;max-width:520px;margin:0 auto;background:var(--green-d);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-radius:14px 14px 0 0}
+.hidden{display:none!important}
+.modalbg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:50}
+.modal{background:var(--card);width:100%;max-width:520px;margin:0 auto;border-radius:18px 18px 0 0;padding:18px;max-height:85vh;overflow-y:auto}
+.empty{text-align:center;padding:30px 10px;color:var(--sub);font-size:13px}
+.tag{font-size:11px;color:var(--sub);font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand" id="shopNameLbl">Kirana Smart Manager<small>किराना स्मार्ट मैनेजर</small></div>
+  <button class="iconbtn" onclick="toggleTheme()">◐</button>
+</header>
+<main>
+
+<!-- DASHBOARD -->
+<section class="screen active" id="scr-dash">
+  <div class="grid2" id="dashStats"></div>
+  <div class="qa">
+    <button onclick="go('pos')">+ New Sale<span>नई बिक्री</span></button>
+    <button class="alt" onclick="go('purchase')">+ New Purchase<span>नई खरीद</span></button>
+    <button onclick="go('inventory');openProductForm()">+ Add Product<span>प्रोडक्ट जोड़ें</span></button>
+    <button class="alt" onclick="go('customers')">Udhaar / ग्राहक<span>Manage credit</span></button>
+  </div>
+  <div class="card">
+    <h3>Low Stock & Alerts</h3>
+    <div id="dashAlerts"></div>
+  </div>
+  <div class="card">
+    <h3>Today's Transactions</h3>
+    <div id="dashTxns"></div>
+  </div>
+</section>
+
+<!-- INVENTORY -->
+<section class="screen" id="scr-inventory">
+  <div class="row">
+    <input type="text" placeholder="Search products…" id="prodSearch" oninput="renderInventory()">
+    <button class="btn" style="width:90px" onclick="openProductForm()">+ Add</button>
+  </div>
+  <div class="card" id="invList"></div>
+</section>
+
+<!-- POS -->
+<section class="screen" id="scr-pos">
+  <input type="text" placeholder="Search or scan product…" id="posSearch" oninput="renderPosResults()">
+  <div class="card" id="posResults" style="max-height:160px;overflow-y:auto"></div>
+  <div class="card">
+    <label>Cart / बिल</label>
+    <div id="cartList"><div class="empty">Cart is empty — add products above</div></div>
+  </div>
+  <div class="card">
+    <label>Customer (required for Udhaar)</label>
+    <select id="posCustomer"><option value="">Walk-in customer</option></select>
+    <label>Discount (₹)</label>
+    <input type="number" id="posDiscount" value="0" oninput="renderCart()">
+    <label>Payment Method</label>
+    <div id="posPayMethods">
+      <span class="pill on" data-pm="Cash" onclick="setPM(this,'Cash')">Cash</span>
+      <span class="pill" data-pm="UPI" onclick="setPM(this,'UPI')">UPI</span>
+      <span class="pill" data-pm="Card" onclick="setPM(this,'Card')">Card</span>
+      <span class="pill" data-pm="Udhaar" onclick="setPM(this,'Udhaar')">Udhaar</span>
+    </div>
+  </div>
+  <div style="height:70px"></div>
+</section>
+
+<!-- PURCHASE -->
+<section class="screen" id="scr-purchase">
+  <div class="card">
+    <label>Supplier Name</label>
+    <input type="text" id="pSupplier" placeholder="e.g. Sharma Distributors">
+    <label>Product</label>
+    <select id="pProduct"></select>
+    <div class="row">
+      <div><label>Quantity</label><input type="number" id="pQty" value="1"></div>
+      <div><label>Purchase Price / unit (₹)</label><input type="number" id="pPrice"></div>
+    </div>
+    <label>Paid Amount (₹)</label>
+    <input type="number" id="pPaid" value="0">
+    <button class="btn" onclick="recordPurchase()">Save Purchase / खरीद दर्ज करें</button>
+  </div>
+  <div class="card">
+    <h3>Recent Purchases</h3>
+    <div id="purchList"></div>
+  </div>
+</section>
+
+<!-- CUSTOMERS -->
+<section class="screen" id="scr-customers">
+  <div class="row">
+    <input type="text" placeholder="Search customers…" id="custSearch" oninput="renderCustomers()">
+    <button class="btn" style="width:90px" onclick="openCustomerForm()">+ Add</button>
+  </div>
+  <div class="card" id="custList"></div>
+</section>
+
+</main>
+
+<nav class="tabs">
+  <button class="tab active" data-s="dash" onclick="go('dash')"><span class="ic">⌂</span>Dashboard</button>
+  <button class="tab" data-s="inventory" onclick="go('inventory')"><span class="ic">▤</span>Inventory</button>
+  <button class="tab" data-s="pos" onclick="go('pos')"><span class="ic">₹</span>Bill</button>
+  <button class="tab" data-s="purchase" onclick="go('purchase')"><span class="ic">↧</span>Purchase</button>
+  <button class="tab" data-s="customers" onclick="go('customers')"><span class="ic">☺</span>Udhaar</button>
+</nav>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+/* ---------- Storage / DB ---------- */
+const DB_KEY='ksm_db_v1';
+function load(){
+  try{
+    const raw=localStorage.getItem(DB_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return seedData();
+}
+function save(){ try{ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }catch(e){ console.error('save failed',e); } }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function todayStr(){ const d=new Date(); const tz=d.getTimezoneOffset()*60000; return new Date(d-tz).toISOString().slice(0,10); }
+function rupee(n){ return '₹'+(Math.round(n*100)/100).toLocaleString('en-IN'); }
+
+function seedData(){
+  const p1={id:uid(),name:'Tata Salt 1kg',category:'Grocery',unit:'packet',purchasePrice:18,sellingPrice:25,mrp:28,stock:40,minStock:10,gst:0};
+  const p2={id:uid(),name:'Parle-G Biscuit',category:'Snacks',unit:'packet',purchasePrice:8,sellingPrice:10,mrp:10,stock:60,minStock:15,gst:5};
+  const p3={id:uid(),name:'Amul Milk 500ml',category:'Dairy',unit:'packet',purchasePrice:24,sellingPrice:27,mrp:27,stock:8,minStock:10,gst:0};
+  const p4={id:uid(),name:'Basmati Rice 1kg',category:'Grocery',unit:'kg',purchasePrice:70,sellingPrice:90,mrp:95,stock:0,minStock:5,gst:5};
+  const c1={id:uid(),name:'Ramesh Kumar',phone:'9876543210',udhaar:0};
+  return {products:[p1,p2,p3,p4], customers:[c1], sales:[], purchases:[], txns:[], shopName:'My Kirana Store', theme:'auto'};
+}
+let DB=load();
+if(!DB.txns) DB.txns=[];
+
+/* ---------- Nav ---------- */
+function go(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('scr-'+name).classList.add('active');
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.s===name));
+  if(name==='dash') renderDash();
+  if(name==='inventory') renderInventory();
+  if(name==='pos') renderPos();
+  if(name==='purchase') renderPurchase();
+  if(name==='customers') renderCustomers();
+  window.scrollTo(0,0);
+}
+function toggleTheme(){
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme');
+  const next = cur==='dark' ? 'light' : (cur==='light' ? '' : 'dark');
+  if(next) r.setAttribute('data-theme',next); else r.removeAttribute('data-theme');
+}
+
+/* ---------- Dashboard ---------- */
+function renderDash(){
+  document.getElementById('shopNameLbl').innerHTML = (DB.shopName||'Kirana Smart Manager')+'<small>किराना स्मार्ट मैनेजर</small>';
+  const t=todayStr();
+  const todaySales = DB.sales.filter(s=>s.date===t);
+  const todayPurch = DB.purchases.filter(p=>p.date===t);
+  const salesTotal = todaySales.reduce((a,s)=>a+s.total,0);
+  const purchTotal = todayPurch.reduce((a,p)=>a+p.total,0);
+  const cogs = todaySales.reduce((a,s)=>a+s.items.reduce((x,i)=>x+i.cost*i.qty,0),0);
+  const profit = salesTotal - cogs - todaySales.reduce((a,s)=>a+s.discount,0);
+  const cashIn = DB.txns.filter(x=>x.date===t && x.method==='Cash').reduce((a,x)=>a+x.amount,0);
+  const stockValue = DB.products.reduce((a,p)=>a+p.purchasePrice*p.stock,0);
+  const custUdhaar = DB.customers.reduce((a,c)=>a+(c.udhaar||0),0);
+  const stats=[
+    ['Today\'s Sales',rupee(salesTotal),'pos'],
+    ['Today\'s Purchase',rupee(purchTotal),''],
+    ['Today\'s Profit',rupee(profit), profit>=0?'pos':'neg'],
+    ['Cash Movement',rupee(cashIn),''],
+    ['Stock Value',rupee(stockValue),''],
+    ['Customer Udhaar',rupee(custUdhaar), custUdhaar>0?'neg':''],
+  ];
+  document.getElementById('dashStats').innerHTML = stats.map(s=>`<div class="stat ${s[2]}"><div class="lbl">${s[0]}</div><div class="val">${s[1]}</div></div>`).join('');
+  const low=DB.products.filter(p=>p.stock<=p.minStock && p.stock>0);
+  const out=DB.products.filter(p=>p.stock===0);
+  let alertHtml='';
+  out.forEach(p=>alertHtml+=`<div class="list-row"><div class="name">${p.name}</div><span class="badge out">Out of stock</span></div>`);
+  low.forEach(p=>alertHtml+=`<div class="list-row"><div class="name">${p.name}</div><span class="badge low">Low: ${p.stock} left</span></div>`);
+  document.getElementById('dashAlerts').innerHTML = alertHtml || '<div class="empty">No alerts — stock looks healthy</div>';
+  const allTodayTxns = [...todaySales.map(s=>({label:'Sale',amt:s.total,sub:s.paymentMethod})), ...todayPurch.map(p=>({label:'Purchase',amt:-p.total,sub:p.supplier}))];
+  document.getElementById('dashTxns').innerHTML = allTodayTxns.length ? allTodayTxns.slice(-8).reverse().map(x=>`<div class="list-row"><div><div class="name">${x.label}</div><div class="meta">${x.sub}</div></div><div class="name" style="color:${x.amt<0?'var(--red)':'var(--green-d)'}">${x.amt<0?'-':''}${rupee(Math.abs(x.amt))}</div></div>`).join('') : '<div class="empty">No transactions yet today</div>';
+}
+
+/* ---------- Inventory ---------- */
+function renderInventory(){
+  const q=(document.getElementById('prodSearch').value||'').toLowerCase();
+  const items=DB.products.filter(p=>p.name.toLowerCase().includes(q));
+  document.getElementById('invList').innerHTML = items.length ? items.map(p=>{
+    let badge = p.stock===0?'<span class="badge out">Out</span>' : p.stock<=p.minStock?'<span class="badge low">Low</span>' : '<span class="badge ok">OK</span>';
+    return `<div class="list-row" onclick="openProductForm('${p.id}')">
+      <div><div class="name">${p.name}</div><div class="meta">${p.category||'—'} · ${rupee(p.sellingPrice)} · Stock: ${p.stock} ${p.unit}</div></div>
+      ${badge}
+    </div>`;
+  }).join('') : '<div class="empty">No products found</div>';
+}
+function openProductForm(id){
+  const p = id ? DB.products.find(x=>x.id===id) : null;
+  const body = `
+    <h3>${p?'Edit Product':'Add Product'} / प्रोडक्ट</h3>
+    <label>Product Name</label><input id="f_name" value="${p?p.name:''}">
+    <div class="row"><div><label>Category</label><input id="f_cat" value="${p?p.category||'':''}"></div>
+    <div><label>Unit</label><input id="f_unit" value="${p?p.unit||'piece':'piece'}"></div></div>
+    <div class="row"><div><label>Purchase Price ₹</label><input type="number" id="f_pp" value="${p?p.purchasePrice:''}"></div>
+    <div><label>Selling Price ₹</label><input type="number" id="f_sp" value="${p?p.sellingPrice:''}"></div></div>
+    <div class="row"><div><label>Opening/Current Stock</label><input type="number" id="f_stock" value="${p?p.stock:0}"></div>
+    <div><label>Min Stock Alert</label><input type="number" id="f_min" value="${p?p.minStock:5}"></div></div>
+    <button class="btn" onclick="saveProduct('${p?p.id:''}')">Save</button>
+    ${p?'<button class="btn danger" style="margin-top:8px" onclick="deleteProduct(\''+p.id+'\')">Delete Product</button>':''}
+    <button class="btn sec" style="margin-top:8px" onclick="closeModal()">Cancel</button>`;
+  showModal(body);
+}
+function saveProduct(id){
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){ alert('Product name required'); return; }
+  const data={
+    name, category:document.getElementById('f_cat').value.trim(),
+    unit:document.getElementById('f_unit').value.trim()||'piece',
+    purchasePrice:+document.getElementById('f_pp').value||0,
+    sellingPrice:+document.getElementById('f_sp').value||0,
+    stock:+document.getElementById('f_stock').value||0,
+    minStock:+document.getElementById('f_min').value||0,
+  };
+  if(id){ Object.assign(DB.products.find(p=>p.id===id), data); }
+  else { data.id=uid(); data.mrp=data.sellingPrice; data.gst=0; DB.products.push(data); }
+  save(); closeModal(); renderInventory();
+}
+function deleteProduct(id){
+  if(!confirm('Delete this product? This cannot be undone.')) return;
+  DB.products = DB.products.filter(p=>p.id!==id);
+  save(); closeModal(); renderInventory();
+}
+
+/* ---------- POS ---------- */
+let cart=[]; let currentPM='Cash';
+function renderPos(){
+  document.getElementById('posSearch').value='';
+  document.getElementById('posResults').innerHTML='';
+  const sel=document.getElementById('posCustomer');
+  sel.innerHTML='<option value="">Walk-in customer</option>'+DB.customers.map(c=>`<option value="${c.id}">${c.name} (${c.phone||''})</option>`).join('');
+  renderCart();
+}
+function renderPosResults(){
+  const q=document.getElementById('posSearch').value.toLowerCase();
+  if(!q){ document.getElementById('posResults').innerHTML=''; return; }
+  const items=DB.products.filter(p=>p.name.toLowerCase().includes(q) && p.stock>0);
+  document.getElementById('posResults').innerHTML = items.length ? items.map(p=>
+    `<div class="list-row" onclick="addToCart('${p.id}')"><div><div class="name">${p.name}</div><div class="meta">${rupee(p.sellingPrice)} · Stock: ${p.stock}</div></div><span class="badge ok">+ Add</span></div>`
+  ).join('') : '<div class="empty">No matching in-stock product</div>';
+}
+function addToCart(pid){
+  const p=DB.products.find(x=>x.id===pid);
+  const line=cart.find(l=>l.pid===pid);
+  if(line){ if(line.qty<p.stock) line.qty++; } else { cart.push({pid, qty:1, price:p.sellingPrice, cost:p.purchasePrice}); }
+  document.getElementById('posSearch').value=''; document.getElementById('posResults').innerHTML='';
+  renderCart();
+}
+function changeQty(pid,delta){
+  const line=cart.find(l=>l.pid===pid);
+  const p=DB.products.find(x=>x.id===pid);
+  line.qty+=delta;
+  if(line.qty<=0){ cart=cart.filter(l=>l.pid!==pid); }
+  else if(line.qty>p.stock){ line.qty=p.stock; }
+  renderCart();
+}
+function setPM(el,pm){ document.querySelectorAll('#posPayMethods .pill').forEach(x=>x.classList.remove('on')); el.classList.add('on'); currentPM=pm; }
+function renderCart(){
+  const c=document.getElementById('cartList');
+  if(!cart.length){ c.innerHTML='<div class="empty">Cart is empty — add products above</div>'; }
+  else {
+    c.innerHTML = cart.map(l=>{
+      const p=DB.products.find(x=>x.id===l.pid);
+      return `<div class="cartline"><div><div class="name">${p.name}</div><div class="meta">${rupee(l.price)} × ${l.qty}</div></div>
+      <div class="qtybtns"><button onclick="changeQty('${l.pid}',-1)">−</button><b>${l.qty}</b><button onclick="changeQty('${l.pid}',1)">+</button></div></div>`;
+    }).join('');
+  }
+  const sub=cart.reduce((a,l)=>a+l.price*l.qty,0);
+  const disc=+document.getElementById('posDiscount').value||0;
+  const total=Math.max(0,sub-disc);
+  let bar=document.getElementById('totalbarPos');
+  if(!bar){ bar=document.createElement('div'); bar.id='totalbarPos'; bar.className='totalbar'; document.body.appendChild(bar); }
+  bar.style.display = document.getElementById('scr-pos').classList.contains('active') ? 'flex':'none';
+  bar.innerHTML = `<div><div class="tag" style="color:#cde">Total</div><b style="font-size:18px">${rupee(total)}</b></div><button class="btn" style="width:auto;padding:10px 22px;background:var(--marigold)" onclick="completeSale(${total})">Charge</button>`;
+}
+function completeSale(total){
+  if(!cart.length){ alert('Cart is empty'); return; }
+  const custId=document.getElementById('posCustomer').value;
+  if(currentPM==='Udhaar' && !custId){ alert('Select a customer for Udhaar payment'); return; }
+  const disc=+document.getElementById('posDiscount').value||0;
+  const items=cart.map(l=>({pid:l.pid,name:DB.products.find(p=>p.id===l.pid).name,qty:l.qty,price:l.price,cost:l.cost}));
+  cart.forEach(l=>{ const p=DB.products.find(x=>x.id===l.pid); p.stock-=l.qty; });
+  const sale={id:uid(),date:todayStr(),items,total,discount:disc,paymentMethod:currentPM,customerId:custId||null};
+  DB.sales.push(sale);
+  DB.txns.push({date:todayStr(),type:'sale',method:currentPM==='Udhaar'?'Udhaar':currentPM,amount:total});
+  if(currentPM==='Udhaar' && custId){ const c=DB.customers.find(x=>x.id===custId); c.udhaar=(c.udhaar||0)+total; }
+  save();
+  cart=[]; document.getElementById('posDiscount').value=0;
+  document.querySelectorAll('#posPayMethods .pill').forEach(x=>x.classList.remove('on'));
+  document.querySelector('#posPayMethods .pill').classList.add('on'); currentPM='Cash';
+  renderCart();
+  alert('Sale completed: '+rupee(total));
+  go('dash');
+}
+
+/* ---------- Purchase ---------- */
+function renderPurchase(){
+  document.getElementById('pProduct').innerHTML = DB.products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  const list=[...DB.purchases].reverse().slice(0,10);
+  document.getElementById('purchList').innerHTML = list.length ? list.map(pu=>
+    `<div class="list-row"><div><div class="name">${pu.productName} × ${pu.qty}</div><div class="meta">${pu.supplier} · ${pu.date}</div></div><div class="name">${rupee(pu.total)}</div></div>`
+  ).join('') : '<div class="empty">No purchases recorded yet</div>';
+}
+function recordPurchase(){
+  const supplier=document.getElementById('pSupplier').value.trim()||'Unknown Supplier';
+  const pid=document.getElementById('pProduct').value;
+  const qty=+document.getElementById('pQty').value||0;
+  const price=+document.getElementById('pPrice').value||0;
+  const paid=+document.getElementById('pPaid').value||0;
+  if(!pid || qty<=0 || price<=0){ alert('Fill product, quantity and price'); return; }
+  const p=DB.products.find(x=>x.id===pid);
+  p.stock+=qty; p.purchasePrice=price;
+  const total=qty*price;
+  DB.purchases.push({id:uid(),date:todayStr(),supplier,productName:p.name,productId:pid,qty,price,total,paid,remaining:total-paid});
+  DB.txns.push({date:todayStr(),type:'purchase',method:'Cash',amount:paid});
+  save();
+  document.getElementById('pSupplier').value=''; document.getElementById('pQty').value=1; document.getElementById('pPrice').value=''; document.getElementById('pPaid').value=0;
+  renderPurchase(); renderDash();
+  alert('Purchase recorded — stock updated');
+}
+
+/* ---------- Customers / Udhaar ---------- */
+function renderCustomers(){
+  const q=(document.getElementById('custSearch').value||'').toLowerCase();
+  const items=DB.customers.filter(c=>c.name.toLowerCase().includes(q));
+  document.getElementById('custList').innerHTML = items.length ? items.map(c=>
+    `<div class="list-row" onclick="openCustomerDetail('${c.id}')"><div><div class="name">${c.name}</div><div class="meta">${c.phone||''}</div></div>
+    <span class="badge ${c.udhaar>0?'neg':'ok'}" style="background:${c.udhaar>0?'#F7DAD7':'#DCEEE3'};color:${c.udhaar>0?'var(--red)':'var(--green-d)'}">${rupee(c.udhaar||0)}</span></div>`
+  ).join('') : '<div class="empty">No customers yet</div>';
+}
+function openCustomerForm(){
+  showModal(`<h3>Add Customer / ग्राहक</h3>
+    <label>Name</label><input id="c_name">
+    <label>Mobile Number</label><input id="c_phone">
+    <button class="btn" onclick="saveCustomer()">Save</button>
+    <button class="btn sec" style="margin-top:8px" onclick="closeModal()">Cancel</button>`);
+}
+function saveCustomer(){
+  const name=document.getElementById('c_name').value.trim();
+  if(!name){ alert('Name required'); return; }
+  DB.customers.push({id:uid(), name, phone:document.getElementById('c_phone').value.trim(), udhaar:0});
+  save(); closeModal(); renderCustomers();
+}
+function openCustomerDetail(id){
+  const c=DB.customers.find(x=>x.id===id);
+  const hist=DB.sales.filter(s=>s.customerId===id).slice(-5).reverse();
+  showModal(`<h3>${c.name}</h3><div class="tag">${c.phone||''}</div>
+    <div class="stat" style="margin:12px 0"><div class="lbl">Udhaar Balance</div><div class="val" style="color:${c.udhaar>0?'var(--red)':'var(--green-d)'}">${rupee(c.udhaar||0)}</div></div>
+    <label>Receive Payment (₹)</label>
+    <input type="number" id="c_pay" placeholder="Amount received">
+    <button class="btn" onclick="receivePayment('${id}')">Record Payment Received</button>
+    <h3 style="margin-top:16px">Recent Purchases</h3>
+    ${hist.length ? hist.map(s=>`<div class="list-row"><div class="meta">${s.date}</div><div class="name">${rupee(s.total)}</div></div>`).join('') : '<div class="empty">No purchase history</div>'}
+    <button class="btn sec" style="margin-top:10px" onclick="closeModal()">Close</button>`);
+}
+function receivePayment(id){
+  const amt=+document.getElementById('c_pay').value||0;
+  if(amt<=0){ alert('Enter a valid amount'); return; }
+  const c=DB.customers.find(x=>x.id===id);
+  c.udhaar=Math.max(0,(c.udhaar||0)-amt);
+  DB.txns.push({date:todayStr(),type:'udhaar-payment',method:'Cash',amount:amt});
+  save(); closeModal(); renderCustomers();
+  alert('Payment recorded');
+}
+
+/* ---------- Modal ---------- */
+function showModal(html){
+  document.getElementById('modalRoot').innerHTML = `<div class="modalbg" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`;
+}
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+
+/* ---------- Init ---------- */
+renderDash();
+</script>
+</body>
+</html>

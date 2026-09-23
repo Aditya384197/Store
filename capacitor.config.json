@@ -1,0 +1,9 @@
+{
+  "appId": "com.kirana.smartmanager",
+  "appName": "Kirana Smart Manager",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true
+  }
+}
